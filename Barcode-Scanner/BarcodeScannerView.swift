@@ -8,10 +8,14 @@
 import SwiftUI
 
 struct BarcodeScannerView: View {
+    @State private var ScannedCode = ""
+    @State private var showingAlert = false
+    @State private var AlertMessage = ""
+    
     var body: some View {
         NavigationStack{
             VStack{
-                Rectangle()
+                ScannerView(ScannedCode: $ScannedCode , showingAlert: $showingAlert , ErrorMessage: $AlertMessage)
                     .frame(height: 270)
                 HStack{
                     Image(systemName: "camera.viewfinder")
@@ -19,7 +23,7 @@ struct BarcodeScannerView: View {
                         .frame(width: 50 , height: 50)
                         .scaledToFill()
                         .symbolRenderingMode(.multicolor)
-                        .foregroundStyle(Color.red)
+                        .foregroundStyle(ScannedCode.isEmpty ? Color.red : Color.green)
                     Text("Scanned Barcode :")
                         .font(.title)
                         .fontWeight(.semibold)
@@ -28,13 +32,25 @@ struct BarcodeScannerView: View {
                 .padding()
                 .padding()
                 
-                Text("Not yet scanned")
+                Text(ScannedCode.isEmpty ? "Not yet Scanned" : ScannedCode)
                     .font(.largeTitle)
                     .bold()
-                    .foregroundStyle(Color.red)
+                    .foregroundStyle(ScannedCode.isEmpty ? Color.red : Color.green)
             }
+            .alert(Text("Error"),
+                   isPresented: $showingAlert ,
+                   actions: {
+                Button("Ok", action: {
+                    ScannedCode = ""
+                })
+            } ,
+                   message: {
+                Text(AlertMessage)
+            }
+            )
             .navigationTitle("Barcode Scanner")
-            
+            .animation(.easeIn, value: ScannedCode)
+                        
         }
     }
 }
